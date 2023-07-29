@@ -1,0 +1,71 @@
+import pandas as pd
+import numpy as np
+import sklearn
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.preprocessing import OneHotEncoder
+import tensorflow as tf
+from tensorflow import keras
+dataset=pd.read_csv(r"C:\Users\Balaji\Downloads\Amazon ML Hackathon datasets\train.csv")
+dataset.head()
+
+dataset.isnull().sum()
+
+dataset.info()
+
+train_dataset_raw_na_dropped = dataset.dropna()
+train_dataset_raw_na_dropped.info()
+
+dataset.describe()
+
+dataset['TITLE'].fillna('',inplace=True)
+
+dataset['BULLET_POINTS'].fillna('missing',inplace=True)
+dataset['DESCRIPTION'].fillna('missing',inplace=True)
+
+dataset.isnull().sum()
+
+import numpy as np
+col = dataset['PRODUCT_TYPE_ID'].values
+col_float = col.astype(np.float32)
+dataset['PRODUCT_TYPE_ID'] = pd.Series(col_float, index=dataset.index)
+col = dataset['PRODUCT_LENGTH'].values
+col_float = col.astype(np.float32)
+dataset['PRODUCT_LENGTH'] = pd.Series(col_float, index=dataset.index)
+dataset.head()
+
+X_train, X_val, y_train, y_val = train_test_split(dataset.iloc[:,1:5], dataset.iloc[:,5], test_size=0.2, random_state=42)
+X_train.info()
+y_train.info()
+
+df = pd.DataFrame(train_dataset_raw_na_dropped)
+column_names = ['BULLET_POINTS']
+df.to_csv(r"C:\Users\Balaji\Downloads\Amazon ML Hackathon datasets\bullet.csv",index=False, columns=column_names)
+
+bullet_points_unclean = pd.read_csv(r'C:\Users\Balaji\Downloads\Amazon ML Hackathon datasets\bullet.csv')
+bullet_points_unclean.head()
+
+bullet_points_na_dropped = bullet_points_unclean.dropna()
+bullet_points_na_dropped.head()
+
+bullet_points_na_dropped.info()
+
+import re
+import emoji
+with open(r'C:\Users\Balaji\Downloads\Amazon ML Hackathon datasets\bullet.csv', 'r') as input_file:
+with open(r'C:\Users\Balaji\Downloads\Amazon ML Hackathon datasets\bullet.csv', 'w') as output_file:
+      for line in input_file:
+          cleaned_line = emoji.demojize(line)
+          cleaned_line = re.sub(':.*?:', '', cleaned_line)
+          output_file.write(cleaned_line)
+
+from bs4 import BeautifulSoup
+with open(r'C:\Users\Balaji\Downloads\Amazon ML Hackathon datasets\bullet.csv', 'r') as input_file:
+with open(r'C:\Users\Balaji\Downloads\Amazon ML Hackathon datasets\bullet.csv', 'w') as output_file:
+        soup = BeautifulSoup(input_file, 'html.parser')
+        text = soup.get_text()
+        output_file.write(text)
+
+y_pred = model.predict(X_val)
+score = 100 * (1 - mean_absolute_percentage_error(y_val, y_pred))
+print(f'Score: {score:.2f}')
